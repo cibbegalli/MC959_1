@@ -3,7 +3,7 @@ import csv
 x = []
 y = []
 
-with open("gridmapbylaser.txt") as f:
+with open("../files/gridmapbylaser.txt") as f:
 #with open("teste.txt") as f:
     coords = csv.reader(f, delimiter='\t', quotechar='|')
     for line in coords:

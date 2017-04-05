@@ -69,7 +69,7 @@ Robot::Robot(Simulator *sim, string name) {
     int n = DIMENSION_SCENE/INTERVAL_GRID;
     cout << "Grid Map: " << n << "x" << n << endl;
     gridMapbySonars.resize(n, vector<int> (n, 0));
-    gridMapbyLaser.resize(n, vector<bool> (n, false));
+    gridMapbyLaser.resize(n, vector<int> (n, 0)); //gridMapbyLaser.resize(n, vector<bool> (n, false));
 
     // define random target 
     targetCoord[0] = ((rand() % n)*(-INTERVAL_GRID)) + MAX_X;
@@ -80,7 +80,6 @@ Robot::Robot(Simulator *sim, string name) {
     direction = FORWARD;
 
 	simxGetStringSignal(sim->getId(),"ScannerData",&laserScannerData,&dataSize,simx_opmode_streaming);
-	
 	cout << "--------------------------------------\n";
 }
 
@@ -190,15 +189,10 @@ void Robot::adjustDirection(int i) {
 void Robot::update(int i) {
     braitenberg(); 
     //drive(10,0);
-    updateSensors();
-    updatePose();//?? 
-    
-    stop();
-    //extApi_sleepMs(50);
+    updateSensors(); 
     updateLaser();
-
+    updatePose();
     updateGridMap(i);
-    braitenberg(); 
 }
 
 void Robot::braitenberg() {
@@ -231,6 +225,7 @@ void Robot::braitenberg() {
         vRight=vRight+wR[i]*detect[i];
     }
 
+    /*
     if(vLeft >= 1.4 && vRight >= 1.4) {
 	    if(direction == LEFT) {
 			vLeft -= 0.20;
@@ -238,6 +233,7 @@ void Robot::braitenberg() {
 			vRight -= 0.20;			
 		}
     }
+    */
 
     sim->setJointTargetVelocity(motorHandle[0], vLeft);
     sim->setJointTargetVelocity(motorHandle[1], vRight);
@@ -312,8 +308,9 @@ void Robot::updatePose() {
     simSetStringSignal("ScannerData",data)
     */
 void Robot::updateLaser() {
+	simxGetStringSignal(sim->getId(),"ScannerData",&laserScannerData,&dataSize,simx_opmode_buffer);
 
-	//if(DEBUG) {
+	if(DEBUG) {
      	cout << "-updateLaser" << robotPosition[0] << " - " << robotPosition[1] << robotOrientation[2] << "\n"; 
      	for (int i=0;i<dataSize/(4*3);i++) { // if each point has 3 coordinates
 			float x = ((simxFloat*)(laserScannerData+4*3*i))[0];
@@ -323,15 +320,8 @@ void Robot::updateLaser() {
 		}
 		cout << "\n";
 
-	//}
-	for(int i=0; i<dataSize; i++) {
-		//lastScannerData[i] = laserScannerData[i];
 	}
-	simxGetStringSignal(sim->getId(),"ScannerData",&laserScannerData,&dataSize,simx_opmode_buffer);
 	
-
-
-    //}
 }
 
 void Robot::calcPositionObstacle(float dist, int sonar, double& sonarReadingX, double& sonarReadingY) {
@@ -347,18 +337,21 @@ void Robot::calcPositionObstacle(float dist, int sonar, double& sonarReadingX, d
 
 void Robot::calcPositionObstacleLaser(float laserReadingX, float laserReadingY,float& coordX, float& coordY) {
 
-	float x1 = robotPosition[0] + laserReadingX;
-	float y1 = robotPosition[1] + laserReadingY;
+	//float x1 = robotPosition[0] + laserReadingX;
+	//float y1 = robotPosition[1] + laserReadingY;
 
-	float angle = robotOrientation[2];
-
-	coordX = x1*cos(angle*PI/180) - y1*sin(angle*PI/180);
-	coordY = x1*sin(angle*PI/180) + y1*cos(angle*PI/180);
+	//float angle = robotOrientation[2];
+	
+	//coordY = x1*cos(angle*PI/180.0) - y1*sin(angle*PI/180.0);
+	//coordX = x1*sin(angle*PI/180.0) + y1*cos(angle*PI/180.0);
+	
+	coordX = -laserReadingX;
+	coordY = -laserReadingY;
 }
 
 
 void Robot::updateGridMap(int i) {
-	if(i < 20) return;
+	if(i % 5 != 0 ) return;
 
 	if(DEBUG) {
 		cout << "-updateGridMap\n";
@@ -399,22 +392,19 @@ void Robot::updateGridMap(int i) {
     int n = DIMENSION_SCENE/INTERVAL_GRID;
 
     for(int i=0; i<dataSize/(4*3); i++) {
-
-		//calcPositionObstacle()    	
+	
     	float laserReadingX = ((simxFloat*)(laserScannerData+4*3*i))[0];
 		float laserReadingY = ((simxFloat*)(laserScannerData+4*3*i))[1];
 		
 
 		float coordX, coordY;
 		calcPositionObstacleLaser(laserReadingX, laserReadingY, coordX, coordY);
-		//coordX = ((simxFloat*)(laserScannerData+4*3*i))[0] + robotPosition[0];
-		//coordY = ((simxFloat*)(laserScannerData+4*3*i))[1] + robotPosition[1];
 
 		int c = (-coordX + MAX_X)/INTERVAL_GRID;
 		int l = (-coordY + MAX_Y)/INTERVAL_GRID;
 
 		if(c >= 0 && l >= 0 && c < n && l < n) {
-			gridMapbyLaser[c][l] = true;
+			gridMapbyLaser[c][l]++;//gridMapbyLaser[c][l] = true;
 		}
     }
 }
@@ -450,7 +440,7 @@ void Robot::writeGridMap() {
 					if(gridMapbyLaser[i][j]) {
 						float x =(i * INTERVAL_GRID) - MAX_X;
 						float y =(j * INTERVAL_GRID) - MAX_Y;
-						fprintf(data, "%.3f\t%.3f\n", x, y);
+						fprintf(data, "%.3f\t%.3f\t%d\n", x, y, gridMapbyLaser[i][j]);
 					}
 				}
 			}

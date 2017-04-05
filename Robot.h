@@ -93,10 +93,8 @@ private:
 
     simxUChar* laserScannerData;
     simxInt dataSize;
-    
-    //vector<char> lastScannerData;
 
-    vector<vector<bool> > gridMapbyLaser;
+    vector<vector<int> > gridMapbyLaser;
     
     simxFloat targetCoord[2];
     DirectionType direction;

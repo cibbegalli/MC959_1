@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
 
     robot->initializeSonars();
     
-    for (int i=0; i<100; ++i)
+    for (int i=0; i<5000; ++i)
     {
         cout << "Here we go... " << i;
         robot->writeSonars();
