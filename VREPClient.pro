@@ -1,7 +1,6 @@
 QT += core
-QT -= gui
 
-PATH = /home/cibelle/Documentos/V-REP_PRO_EDU_V3_3_2_64_Linux/programming
+PATH = ../V-REP_PRO_EDU_V3_3_2_64_Linux/programming
 
 INCLUDEPATH += $${PATH}/remoteApi
 INCLUDEPATH += $${PATH}/include
