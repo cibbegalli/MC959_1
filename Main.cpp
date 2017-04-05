@@ -22,14 +22,14 @@ int main(int argc, char *argv[])
 
     robot->initializeSonars();
     
-    for (int i=0; i<5000; ++i)
+    for (int i=0; i<100; ++i)
     {
         cout << "Here we go... " << i;
         robot->writeSonars();
         robot->writeGT();
         robot->adjustDirection(i);
-        robot->update();        
-        extApi_sleepMs(70);//extApi_sleepMs(50);
+        robot->update(i);        
+        extApi_sleepMs(50);//extApi_sleepMs(50);
     }
     robot->writeGridMap();
     

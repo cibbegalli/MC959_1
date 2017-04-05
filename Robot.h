@@ -40,17 +40,18 @@ public:
     Robot(Simulator *sim, std::string name);
     void initializeSonars();
     void adjustDirection(int i);
-    void update();
+    void update(int i);
     void braitenberg();
     void updateSensors();
     void updatePose();
     void updateLaser();
 
-    void updateGridMap();
+    void updateGridMap(int i);
     void writeGridMap();
     
     void calcPositionObstacle(float dist, int sonar, double& sonarReadingX, double& sonarReadingY);
-    
+    void calcPositionObstacleLaser(float laserReadingX, float laserReadingY,float& coordX, float& coordY);
+
     void writeGT();
     void writeSonars();
     void printSonars();
@@ -93,7 +94,7 @@ private:
     simxUChar* laserScannerData;
     simxInt dataSize;
     
-    simxUChar* lastScannerData;
+    //vector<char> lastScannerData;
 
     vector<vector<bool> > gridMapbyLaser;
     
