@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
     robot->initializeSonars();
     
     int num_iteracoes = 5000;
-    cout << "Iniciando do robô ...\n";
     for (int i=0; i<num_iteracoes; ++i)
     {
         cout << "Iteração (" << (i+1) << "/" << num_iteracoes << ")\n";
