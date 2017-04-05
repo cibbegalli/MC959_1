@@ -3,6 +3,7 @@
 Robot::Robot(Simulator *sim, string name) {
     this->sim = sim;
     this->name = name;
+    cout << "Iniciando robô ...\n";
     handle = sim->getHandle(name);
 
     if (LOG) {
@@ -20,17 +21,19 @@ Robot::Robot(Simulator *sim, string name) {
             fclose(data);
     }
 
+    cout << " > Adquirindo handles...\n";
+
     /* Get handles of sensors and actuators */
     encoderHandle[0] = sim->getHandle("Pioneer_p3dx_leftWheel");
     encoderHandle[1] = sim->getHandle("Pioneer_p3dx_rightWheel");
-    cout << "Left Encoder: "<< encoderHandle[0] << endl;
-    cout << "Right Encoder: "<< encoderHandle[1] << endl;
+    cout << "  >> Left Wheel Encoder Handle: "<< encoderHandle[0] << endl;
+    cout << "  >> Right Wheel Encoder Handle: "<< encoderHandle[1] << endl;
 
     /* Get handles of sensors and actuators */
     motorHandle[0] = sim->getHandle("Pioneer_p3dx_leftMotor");
     motorHandle[1] = sim->getHandle("Pioneer_p3dx_rightMotor");
-    cout << "Left motor: "<<  motorHandle[0] << endl;
-    cout << "Right motor: "<<  motorHandle[1] << endl;
+    cout << "  >> Left Motor Encoder Handle: "<<  motorHandle[0] << endl;
+    cout << "  >> Right Motor Encoder Handle: "<<  motorHandle[1] << endl;
 
     simxChar sensorName[32];
     /* Connect to sonar sensors. Requires a handle per sensor. Sensor name: Pioneer_p3dx_ultrasonicSensorX, where
@@ -43,7 +46,7 @@ Robot::Robot(Simulator *sim, string name) {
             cout <<  "Error on connecting to sensor " + (i+1) << endl;
         }
         else {
-        	cout << (i+1)  << " connected to sensor \n";    
+        	cout << "  >> Sonar Handle (" << (i+1) << "/" << NUM_SONARS << "): " << sonarHandle[i] << "\n";    
         }
     }
 
@@ -61,13 +64,13 @@ Robot::Robot(Simulator *sim, string name) {
     /* Get the encoder data */
     sim->getJointPosition(motorHandle[0],&encoder[0]);
     sim->getJointPosition(motorHandle[1],&encoder[1]);
-    cout << "Set enconder=[" << encoder[0] << "," << encoder[1] << "]" << endl;
+    //cout << "Set enconder=[" << encoder[0] << "," << encoder[1] << "]" << endl;
 
     /* Initialize random seed */
     srand(time(NULL));
 
     int n = DIMENSION_SCENE/INTERVAL_GRID;
-    cout << "Grid Map: " << n << "x" << n << endl;
+    cout << " > Iniciando grid map de dimensão: " << n << "x" << n << endl;
     gridMapbySonars.resize(n, vector<int> (n, 0));
     gridMapbyLaser.resize(n, vector<int> (n, 0)); //gridMapbyLaser.resize(n, vector<bool> (n, false));
 
@@ -75,11 +78,12 @@ Robot::Robot(Simulator *sim, string name) {
     targetCoord[0] = ((rand() % n)*(-INTERVAL_GRID)) + MAX_X;
     targetCoord[1] = ((rand() % n)*(-INTERVAL_GRID)) + MAX_Y;
 
-    cout << "Target(RANDOM) x=" << targetCoord[0] << ", y=" << targetCoord[1] << endl;
+    cout << "> Inicializando coordenada target aleatoriamente. Target: x=" << targetCoord[0] << ", y=" << targetCoord[1] << endl;
 
     direction = FORWARD;
 
 	simxGetStringSignal(sim->getId(),"ScannerData",&laserScannerData,&dataSize,simx_opmode_streaming);
+	cout << "Fim da inicialização do robô.\n";
 	cout << "--------------------------------------\n";
 }
 
@@ -238,7 +242,7 @@ void Robot::braitenberg(int i) {
     if(vLeft == 2.0 && vRight == 2.0 && (i % 200) >= 0 && (i%200) < 20) {
     	vLeft = 4.0;
     	vRight = -4.0;
-    	cout << i<< "ajuste velocidade para pegar mais dados da cena\n";
+    	//cout << i<< "ajuste velocidade para pegar mais dados da cena\n";
     }
 
     sim->setJointTargetVelocity(motorHandle[0], vLeft);
