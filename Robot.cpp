@@ -187,7 +187,7 @@ void Robot::adjustDirection(int i) {
 }
 
 void Robot::update(int i) {
-    braitenberg(); 
+    braitenberg(i); 
     //drive(10,0);
     updateSensors(); 
     updateLaser();
@@ -195,7 +195,7 @@ void Robot::update(int i) {
     updateGridMap(i);
 }
 
-void Robot::braitenberg() {
+void Robot::braitenberg(int i) {
 
     double maxDetectionDist = 0.2;
     double noDetectionDist = 0.6;
@@ -234,6 +234,12 @@ void Robot::braitenberg() {
 		}
     }
     */
+
+    if(vLeft == 2.0 && vRight == 2.0 && (i % 200) >= 0 && (i%200) < 20) {
+    	vLeft = 4.0;
+    	vRight = -4.0;
+    	cout << i<< "ajuste velocidade para pegar mais dados da cena\n";
+    }
 
     sim->setJointTargetVelocity(motorHandle[0], vLeft);
     sim->setJointTargetVelocity(motorHandle[1], vRight);
@@ -351,8 +357,6 @@ void Robot::calcPositionObstacleLaser(float laserReadingX, float laserReadingY,f
 
 
 void Robot::updateGridMap(int i) {
-	if(i % 5 != 0 ) return;
-
 	if(DEBUG) {
 		cout << "-updateGridMap\n";
 	}
@@ -388,6 +392,8 @@ void Robot::updateGridMap(int i) {
     		}
     	}
     }
+
+    if(i % 5 != 0 ) return;
 
     int n = DIMENSION_SCENE/INTERVAL_GRID;
 
@@ -433,13 +439,14 @@ void Robot::writeGridMap() {
         }
 
         data = fopen("files/gridmapbylaser.txt", "at");
+        int countPointsReadings = 0;
 		if (data!=NULL)
         {
         	for(int i=0; i<n; i++) {
 				for(int j=0; j<n; j++) {
 					if(gridMapbyLaser[i][j]) {
 						float x =(i * INTERVAL_GRID) - MAX_X;
-						float y =(j * INTERVAL_GRID) - MAX_Y;
+						float y =(j * INTERVAL_GRID) - MAX_Y; 
 						fprintf(data, "%.3f\t%.3f\t%d\n", x, y, gridMapbyLaser[i][j]);
 					}
 				}

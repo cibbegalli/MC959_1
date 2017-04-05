@@ -41,7 +41,7 @@ public:
     void initializeSonars();
     void adjustDirection(int i);
     void update(int i);
-    void braitenberg();
+    void braitenberg(int i);
     void updateSensors();
     void updatePose();
     void updateLaser();
