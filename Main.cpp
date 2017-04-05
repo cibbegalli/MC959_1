@@ -22,19 +22,20 @@ int main(int argc, char *argv[])
 
     robot->initializeSonars();
     
-    for (int i=0; i<5000; ++i)
+    int num_iteracoes = 5000;
+    cout << "Iniciando do robô ...\n";
+    for (int i=0; i<num_iteracoes; ++i)
     {
-        cout << "Here we go... " << i;
+        cout << "Iteração (" << (i+1) << "/" << num_iteracoes << ")\n";
         robot->writeSonars();
         robot->writeGT();
         robot->adjustDirection(i);
         robot->update(i);        
-        extApi_sleepMs(50);//extApi_sleepMs(50);
+        extApi_sleepMs(50);
     }
     robot->writeGridMap();
     
     vrep->disconnect();
     
     return 0;
-    //exit(0);
 }
