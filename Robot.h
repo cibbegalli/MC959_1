@@ -1,6 +1,7 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#define NUM_ITERATIONS 5000
 #define DEBUG 0
 #define NUM_SONARS  16
 #define LOG         1
@@ -42,16 +43,29 @@ public:
     void adjustDirection(int i);
     void update(int i);
     void braitenberg(int i);
+    void wallFollow();
     void updateSensors();
     void updatePose();
     void updateLaser();
-
+    void ajusteEsquerda();
+    void ajusteDireita();
+    void viraEsquerda(int vLinear);
+    void viraDireita(int vLinear);
     void updateGridMap(int i);
     void writeGridMap();
     
     void calcPositionObstacle(float dist, int sonar, double& sonarReadingX, double& sonarReadingY);
     void calcPositionObstacleLaser(float laserReadingX, float laserReadingY,float& coordX, float& coordY);
 
+    simxFloat vEsq, vDir, vEsqOld, vDirOld;
+    simxFloat vLinear, vAngular;
+    simxInt rear = 0;
+    int vConst = 0, countConst = 0;
+    int stopping = 0, turnRight = 0, turnLeft = 0, followingRightWall = 0, followingLeftWall, frontWall = 0, desvFront = 0;
+    simxFloat initialPosition[3] = {0,0,0};
+    simxFloat RelEsq = 0, RelDir = 0, RelDif = 0, a = 0, initial_a, xRel = 0, yRel = 0, xOd, yOd;
+    simxInt timeStart, currentTime, lastTime, diffTime;
+    int rotated = 0;
     void writeGT();
     void writeSonars();
     void printSonars();
@@ -80,8 +94,10 @@ private:
     /* Robot Position  */
     simxFloat robotPosition[3] = {0,0,0};                    // current robot position
     simxFloat robotOrientation[3] = {0,0,0};                 // current robot orientation
+    simxFloat initialOrientation[3] = {0,0,0};
     float initialPose[3] = {0,0,0};
     simxFloat robotLastPosition[3] = {0,0,0};                // last robot position
+    simxInt inverting = 0;
     
     float sonarReadings[NUM_SONARS];
     float lastSonarReadings[NUM_SONARS];
@@ -93,6 +109,9 @@ private:
 
     simxUChar* laserScannerData;
     simxInt dataSize;
+
+    simxUChar* laserScannerData2;
+    simxInt dataSize2;
 
     vector<vector<int> > gridMapbyLaser;
     
